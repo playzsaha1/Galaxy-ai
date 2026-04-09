@@ -1,37 +1,44 @@
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({
-      reply: "Method not allowed. Use POST."
+module.exports = async function handler(req, res) {
+  try {
+    if (req.method !== "POST") {
+      return res.status(405).json({
+        reply: "Method not allowed. Use POST."
+      });
+    }
+
+    const message = (req.body && req.body.message ? req.body.message : "")
+      .trim()
+      .toLowerCase();
+
+    if (!message) {
+      return res.status(400).json({
+        reply: "Please send a message."
+      });
+    }
+
+    let reply = "I don't understand that yet, but we can make me smarter.";
+
+    if (message.includes("hello") || message.includes("hi")) {
+      reply = "Hi! Nice to meet you.";
+    } else if (message.includes("how are you")) {
+      reply = "I'm doing well. Thanks for asking.";
+    } else if (message.includes("your name")) {
+      reply = "I'm your custom AI.";
+    } else if (message.includes("bye")) {
+      reply = "Goodbye! Talk to you later.";
+    } else if (message.includes("help")) {
+      reply = "You can ask me simple questions for now.";
+    } else if (message.includes("who made you")) {
+      reply = "You did. I'm running on your own code.";
+    } else if (message.endsWith("?")) {
+      reply = "That's a good question. I don't fully know yet.";
+    }
+
+    return res.status(200).json({ reply });
+  } catch (error) {
+    console.error("API ERROR:", error);
+    return res.status(500).json({
+      reply: "Server error inside api/chat.js"
     });
   }
-
-  const message = (req.body?.message || "").trim().toLowerCase();
-
-  if (!message) {
-    return res.status(400).json({
-      reply: "Please send a message."
-    });
-  }
-
-  let reply = "I don't understand that yet, but you can teach me more rules.";
-
-  if (message.includes("hello") || message.includes("hi")) {
-    reply = "Hi! Nice to meet you.";
-  } else if (message.includes("how are you")) {
-    reply = "I'm doing well. Thanks for asking.";
-  } else if (message.includes("your name")) {
-    reply = "I'm your custom AI.";
-  } else if (message.includes("bye")) {
-    reply = "Goodbye! Talk to you later.";
-  } else if (message.includes("help")) {
-    reply = "You can ask me simple questions for now. Later we can make me smarter.";
-  } else if (message.includes("weather")) {
-    reply = "I can't check live weather yet, but we can add that later.";
-  } else if (message.includes("who made you")) {
-    reply = "You did. I'm running on your own code and API.";
-  } else if (message.endsWith("?")) {
-    reply = "That's a good question. I don't fully know yet, but we can train my logic step by step.";
-  }
-
-  return res.status(200).json({ reply });
-}
+};

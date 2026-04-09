@@ -2,7 +2,6 @@
   "name": "my-ai-chatbot",
   "version": "1.0.0",
   "description": "My own AI chatbot with a custom API",
-  "type": "module",
   "scripts": {
     "dev": "vercel dev"
   }
