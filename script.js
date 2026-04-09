@@ -2,6 +2,8 @@ const chatBox = document.getElementById("chatBox");
 const messageInput = document.getElementById("messageInput");
 const sendButton = document.getElementById("sendButton");
 
+let chatHistory = [];
+
 function addMessage(role, text) {
   const messageDiv = document.createElement("div");
   messageDiv.className = `message ${role}`;
@@ -18,6 +20,8 @@ function addMessage(role, text) {
   chatBox.appendChild(messageDiv);
 
   chatBox.scrollTop = chatBox.scrollHeight;
+
+  chatHistory.push({ role, text });
 }
 
 async function sendMessage() {
@@ -35,7 +39,10 @@ async function sendMessage() {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ message })
+      body: JSON.stringify({
+        message,
+        history: chatHistory
+      })
     });
 
     const data = await response.json();
