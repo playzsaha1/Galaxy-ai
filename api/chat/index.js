@@ -74,10 +74,13 @@ export default function handler(req, res) {
     return null;
   }
 
-  function getLastUserMessage(chatHistory) {
+  function findNameInHistory(chatHistory) {
     for (let i = chatHistory.length - 1; i >= 0; i--) {
-      if (chatHistory[i]?.role === "user") {
-        return chatHistory[i].text;
+      const msg = chatHistory[i];
+      if (msg?.role === "user" && msg.text.toLowerCase().includes("my name is ")) {
+        return msg.text
+          .substring(msg.text.toLowerCase().indexOf("my name is ") + 11)
+          .trim();
       }
     }
     return null;
@@ -94,16 +97,10 @@ export default function handler(req, res) {
       ? `Nice to meet you, ${name}. I'll remember that in this chat.`
       : "I think you were telling me your name, but I didn't catch it.";
   } else if (lowerMessage.includes("what's my name") || lowerMessage.includes("what is my name")) {
-    const previousUserMessage = getLastUserMessage(history);
+    const name = findNameInHistory(history);
 
-    if (previousUserMessage && previousUserMessage.toLowerCase().includes("my name is ")) {
-      const extracted = previousUserMessage
-        .substring(previousUserMessage.toLowerCase().indexOf("my name is ") + 11)
-        .trim();
-
-      reply = extracted
-        ? `You told me your name is ${extracted}.`
-        : "You mentioned your name earlier, but I couldn't read it clearly.";
+    if (name) {
+      reply = `You told me your name is ${name}.`;
     } else {
       reply = "You haven't told me your name yet.";
     }
