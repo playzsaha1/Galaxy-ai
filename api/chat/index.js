@@ -11,51 +11,52 @@ export default function handler(req, res) {
     return res.status(400).json({ reply: "Please send a message." });
   }
 
+  // =========================
+  // 🧠 BUILT-IN KNOWLEDGE
+  // =========================
+  const knowledge = {
+    "what is ai": "AI is when machines simulate human intelligence.",
+    "what is finance": "Finance is about managing money and investments.",
+    "what is coding": "Coding is writing instructions for computers.",
+    "what is html": "HTML structures web pages.",
+    "what is css": "CSS styles web pages.",
+    "what is javascript": "JavaScript makes websites interactive.",
+    "what is api": "An API lets systems communicate with each other.",
+    "what is a database": "A database stores and organizes data.",
+    "what is investing": "Investing is putting money into assets to grow wealth.",
+    "what is risk": "Risk is the chance of losing money."
+  };
+
+  if (knowledge[lowerMessage]) {
+    return res.status(200).json({ reply: knowledge[lowerMessage] });
+  }
+
+  // =========================
+  // 🎯 INTENTS
+  // =========================
   const intents = [
     {
-      name: "greeting",
-      keywords: ["hello", "hi", "hey", "heyy", "good morning", "good afternoon"],
-      responses: [
-        "Hey! How can I help you today?",
-        "Hi! What would you like to talk about?",
-        "Hello! I'm ready."
-      ]
+      keywords: ["hello", "hi", "hey", "good morning", "good afternoon"],
+      responses: ["Hey!", "Hi there!", "Hello!"]
     },
     {
-      name: "how_are_you",
       keywords: ["how are you", "how r you", "howre you"],
+      responses: ["I'm good!", "Doing great!", "All good here."]
+    },
+    {
+      keywords: ["what is your name", "who are you"],
+      responses: ["I'm your custom AI.", "I'm your chatbot."]
+    },
+    {
+      keywords: ["help", "what can you do"],
       responses: [
-        "I'm doing well. Thanks for asking.",
-        "I'm good and ready to help.",
-        "Doing great. What do you need?"
+        "You can chat with me or teach me new things.",
+        "Try asking questions or teaching me something."
       ]
     },
     {
-      name: "name_question",
-      keywords: ["what is your name", "what's your name", "who are you"],
-      responses: [
-        "I'm your custom AI assistant.",
-        "I'm your own chatbot, built by you.",
-        "I'm your AI project."
-      ]
-    },
-    {
-      name: "help",
-      keywords: ["help", "what can you do", "commands", "options"],
-      responses: [
-        "Right now I can chat, answer simple questions, and respond based on intents. We can keep improving me.",
-        "I can handle greetings, simple questions, and basic memory. We can add much more next.",
-        "I can already chat with you, and we can expand my skills step by step."
-      ]
-    },
-    {
-      name: "goodbye",
-      keywords: ["bye", "goodbye", "see you", "cya"],
-      responses: [
-        "Goodbye!",
-        "See you later.",
-        "Bye! Come back soon."
-      ]
+      keywords: ["bye", "goodbye", "see you"],
+      responses: ["Bye!", "See you later!", "Goodbye!"]
     }
   ];
 
@@ -74,6 +75,9 @@ export default function handler(req, res) {
     return null;
   }
 
+  // =========================
+  // 🧠 NAME MEMORY
+  // =========================
   function findNameInHistory(chatHistory) {
     for (let i = chatHistory.length - 1; i >= 0; i--) {
       const msg = chatHistory[i];
@@ -91,25 +95,31 @@ export default function handler(req, res) {
 
   if (matchedIntent) {
     reply = pickResponse(matchedIntent.responses);
+
   } else if (lowerMessage.includes("my name is ")) {
     const name = message.substring(lowerMessage.indexOf("my name is ") + 11).trim();
     reply = name
-      ? `Nice to meet you, ${name}. I'll remember that in this chat.`
-      : "I think you were telling me your name, but I didn't catch it.";
-  } else if (lowerMessage.includes("what's my name") || lowerMessage.includes("what is my name")) {
+      ? `Nice to meet you, ${name}.`
+      : "I didn't catch your name.";
+
+  } else if (
+    lowerMessage.includes("what's my name") ||
+    lowerMessage.includes("what is my name")
+  ) {
     const name = findNameInHistory(history);
 
-    if (name) {
-      reply = `You told me your name is ${name}.`;
-    } else {
-      reply = "You haven't told me your name yet.";
-    }
+    reply = name
+      ? `You told me your name is ${name}.`
+      : "You haven't told me your name yet.";
+
   } else if (lowerMessage.endsWith("?")) {
-    reply = "That's a good question. I don't fully know yet, but I can get smarter as you build me.";
-  } else if (lowerMessage.length < 4) {
-    reply = "Could you say a little more?";
+    reply = "I don't know that yet. You can teach me.";
+
+  } else if (lowerMessage.length < 3) {
+    reply = "Say a bit more.";
+
   } else {
-    reply = `You said: "${message}". I don't fully understand that yet, but I'm learning how to respond better.`;
+    reply = `I don't know that yet.`;
   }
 
   return res.status(200).json({ reply });
